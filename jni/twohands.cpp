@@ -16,13 +16,6 @@ static int USEITEM_VTABLE_OFFSET = 44; // TODO: Find this dynamically
 ItemInstance LeftHandItem;
 
 
-void (*_Player$_init)();
-void Player$_init() {
-	LeftHandItem = ItemInstance(Tile::rock);
-	
-	_Player$_init();
-}
-
 bool (*_Item$useOn)(Item*, ItemInstance*, Player*, int, int, int, signed char, float, float, float);
 bool Item$useOn(Item* self, ItemInstance* usedItem, Player* player, int x, int y, int z, signed char side, float pixelX, float pixelY, float pixelZ) {
 
@@ -31,7 +24,7 @@ bool Item$useOn(Item* self, ItemInstance* usedItem, Player* player, int x, int y
 	void** rightHandVtable = *((void***) usedItem->item);
 	void* rightHandUseOn = rightHandVtable[USEITEM_VTABLE_OFFSET];
 	void* defaultUseOn = (void*) &Item::useOn;
-	if(rightHandUseOn = defaultUseOn || usedItem->item == NULL) {
+	if(rightHandUseOn == defaultUseOn || usedItem->item == NULL) {
 		// Since the right hand item does nothing, use the left hand instead
 		return LeftHandItem.item->useOn(&LeftHandItem, player, x, y, z, side, pixelX, pixelY, pixelZ);
 	}
@@ -41,6 +34,8 @@ bool Item$useOn(Item* self, ItemInstance* usedItem, Player* player, int x, int y
 
 void (*_ItemInHandRenderer$render)(ItemInHandRenderer*, float);
 void ItemInHandRenderer$render(ItemInHandRenderer* self, float partialTicks) {
+	LeftHandItem = ItemInstance(Tile::rock); // TODO: Find a place for this and make it changeable
+
 	_ItemInHandRenderer$render(self, partialTicks); // render the right hand
 
 	MatrixStack::Ref matref = MatrixStack::World.push();
@@ -55,6 +50,5 @@ void ItemInHandRenderer$render(ItemInHandRenderer* self, float partialTicks) {
 JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
 	MSHookFunction((void*) &ItemInHandRenderer::render, (void*) &ItemInHandRenderer$render, (void**) &_ItemInHandRenderer$render);
 	MSHookFunction((void*) &Item::useOn, (void*) &Item$useOn, (void**) &_Item$useOn);
-	MSHookFunction((void*) &Player::_init, (void*) &Player$_init, (void**) &_Player$_init);
 	return JNI_VERSION_1_2;
 }

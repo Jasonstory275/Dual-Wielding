@@ -5,6 +5,7 @@ class Vec3;
 class Matrix {
 public:
 	void translate(const Vec3&);
+	void scale(const Vec3&);
 };
 
 class MatrixStack {
@@ -17,7 +18,8 @@ public:
 	};
 
 
-	static MatrixStack World;
+	static MatrixStack Projection;
 
 	MatrixStack::Ref push();
+	void pop();
 };

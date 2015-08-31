@@ -13,5 +13,5 @@ public:
 	Tile* tile;
 
 	ItemInstance();
-	ItemInstance(const Tile*);
+	ItemInstance(const Item*);
 };
